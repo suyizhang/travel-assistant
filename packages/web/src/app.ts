@@ -28,14 +28,14 @@ async function initAuth() {
       console.error('登录失败:', err)
     }
   } else {
-    // H5：检查是否在登录页（含 GitHub 回调 code），如果不在则跳转登录页
+    // H5：仅在登录页处理 GitHub 回调，不再强制跳转登录页
+    // 用户可以先浏览首页，进入聊天时再检查登录状态
     if (typeof window !== 'undefined') {
-      const pathname = window.location.pathname
-      const isLoginPage = pathname.includes('/pages/login/index')
       const hasCode = window.location.search.includes('code=')
+      const isLoginPage = window.location.pathname.includes('/pages/login/index')
 
-      if (!isLoginPage && !hasCode) {
-        Taro.redirectTo({ url: '/pages/login/index' })
+      if (hasCode && isLoginPage) {
+        // 在登录页且有回调 code，正常处理即可
       }
     }
   }

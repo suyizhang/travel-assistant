@@ -25,7 +25,8 @@ const SYSTEM_PROMPT = `你是一位经验丰富的专业旅行规划师，名叫
 ## 对话策略
 - 用户说想旅行但没确定目的地 → 先问预算、时间、偏好，再推荐
 - 用户确定了目的地 → 依次提供天气、景点、行程、预算
-- 用户问具体问题 → 直接回答，必要时调用工具辅助`;
+- 用户问具体问题 → 直接回答，必要时调用工具辅助
+- 如果有用户定位信息，在推荐行程时以用户所在城市为出发地，主动给出交通方式（飞机/高铁/自驾）和大致耗时`;
 
 interface Session {
   history: BaseMessage[];
@@ -143,7 +144,7 @@ export class Assistant {
   /**
    * 构建发送给模型的消息列表
    */
-  private buildMessages(session: Session): BaseMessage[] {
+  private buildMessages(session: Session, location?: { latitude: number; longitude: number; city?: string }): BaseMessage[] {
     const messages: BaseMessage[] = [];
 
     // 如果有历史摘要，作为上下文注入
@@ -153,11 +154,29 @@ export class Assistant {
       );
     }
 
+    // 如果有用户定位信息，注入上下文
+    if (location) {
+      const locParts: string[] = [];
+      if (location.city) {
+        locParts.push(`城市：${location.city}`);
+      }
+      locParts.push(`坐标：${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`);
+      messages.push(
+        new SystemMessage(
+          `用户当前位置信息：${locParts.join("，")}。在推荐行程时可参考用户所在城市作为出发地，给出交通方式和大致耗时建议。`
+        )
+      );
+    }
+
     messages.push(...session.history);
     return messages;
   }
 
-  async chat(userInput: string, sessionId = "default"): Promise<string> {
+  async chat(
+    userInput: string,
+    sessionId = "default",
+    location?: { latitude: number; longitude: number; city?: string }
+  ): Promise<string> {
     if (!this.initialized) {
       await this.init();
     }
@@ -171,7 +190,7 @@ export class Assistant {
     await this.compressHistory(session);
 
     const response = await this.agent.invoke({
-      messages: this.buildMessages(session),
+      messages: this.buildMessages(session, location),
     });
 
     const messages: BaseMessage[] = response.messages;

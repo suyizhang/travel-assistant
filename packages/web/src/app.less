@@ -28,3 +28,13 @@ page {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+// Taro H5 容器修复
+#app,
+.taro_router,
+.taro_page {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}

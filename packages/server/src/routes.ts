@@ -127,7 +127,7 @@ export async function handleRequest(
   // POST /api/chat
   if (method === "POST" && url === "/api/chat") {
     try {
-      const { message, session_id } = await parseBody(req);
+      const { message, session_id, location } = await parseBody(req);
 
       if (!message || typeof message !== "string") {
         sendJSON(res, 400, { error: "缺少 message 参数" }, corsHeaders);
@@ -139,7 +139,7 @@ export async function handleRequest(
       }
 
       const sessionId = session_id || userId;
-      const reply = await assistant.chat(message, sessionId);
+      const reply = await assistant.chat(message, sessionId, location || undefined);
       sendJSON(res, 200, { reply, session_id: sessionId }, corsHeaders);
     } catch (err) {
       console.error("Chat error:", err);

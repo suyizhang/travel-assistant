@@ -4,10 +4,17 @@ import { useState } from 'react'
 import './index.less'
 
 const quickQuestions = [
-  { icon: '🗺️', text: '推荐五一去哪玩？' },
-  { icon: '🏛️', text: '北京三日游怎么安排？' },
-  { icon: '🌶️', text: '去成都旅行预算多少？' },
-  { icon: '🏖️', text: '三亚最近天气怎么样？' },
+  { icon: '🗺️', text: '推荐五一去哪玩？', tag: '热门' },
+  { icon: '🏛️', text: '北京三日游怎么安排？', tag: '行程' },
+  { icon: '🌶️', text: '去成都旅行预算多少？', tag: '预算' },
+  { icon: '🏖️', text: '三亚最近天气怎么样？', tag: '天气' },
+]
+
+const features = [
+  { icon: '📍', label: '目的地推荐' },
+  { icon: '📋', label: '行程规划' },
+  { icon: '💰', label: '预算估算' },
+  { icon: '🌤️', label: '天气查询' },
 ]
 
 function getUserInfo() {
@@ -34,46 +41,75 @@ export default function Index() {
 
   return (
     <View className='index'>
-      <View className='index-bg-orb index-bg-orb--1' />
-      <View className='index-bg-orb index-bg-orb--2' />
+      {/* 背景装饰 */}
+      <View className='index-deco index-deco--1' />
+      <View className='index-deco index-deco--2' />
+      <View className='index-deco index-deco--3' />
 
+      {/* 用户栏 */}
       {user && (
         <View className='topbar'>
           <View className='topbar-user'>
             <Image className='topbar-avatar' src={user.avatar_url} mode='aspectFill' />
-            <Text className='topbar-name'>{user.login}</Text>
+            <View className='topbar-info'>
+              <Text className='topbar-greeting'>欢迎回来</Text>
+              <Text className='topbar-name'>{user.login}</Text>
+            </View>
           </View>
           <Text className='topbar-logout' onClick={handleLogout}>退出</Text>
         </View>
       )}
 
+      {/* Hero */}
       <View className='hero'>
-        <View className='hero-badge'>
-          <Text className='hero-badge-text'>TRAVEL COMPANION</Text>
+        <View className='hero-icon-wrap'>
+          <View className='hero-icon-ring' />
+          <Text className='hero-icon'>✈️</Text>
         </View>
-        <View className='hero-icon'>✈️</View>
         <Text className='hero-title'>旅伴</Text>
         <Text className='hero-subtitle'>你的 AI 旅行规划助手</Text>
-        <View className='hero-line' />
-        <Text className='hero-desc'>智能推荐目的地 · 规划行程 · 估算预算 · 查询天气</Text>
       </View>
 
+      {/* 能力标签 */}
+      <View className='features'>
+        {features.map((f) => (
+          <View key={f.label} className='feature-chip'>
+            <Text className='feature-chip-icon'>{f.icon}</Text>
+            <Text className='feature-chip-label'>{f.label}</Text>
+          </View>
+        ))}
+      </View>
+
+      {/* 快捷问题 */}
       <View className='quick'>
-        <Text className='quick-label'>热门问题</Text>
+        <View className='quick-header'>
+          <View className='quick-dot' />
+          <Text className='quick-label'>热门问题</Text>
+        </View>
         <View className='quick-grid'>
           {quickQuestions.map((q) => (
             <View key={q.text} className='quick-card' onClick={() => goChat(q.text)}>
-              <Text className='quick-card-icon'>{q.icon}</Text>
-              <Text className='quick-card-text'>{q.text}</Text>
-              <Text className='quick-card-arrow'>→</Text>
+              <View className='quick-card-left'>
+                <Text className='quick-card-icon'>{q.icon}</Text>
+                <Text className='quick-card-text'>{q.text}</Text>
+              </View>
+              <View className='quick-card-tag'>
+                <Text className='quick-card-tag-text'>{q.tag}</Text>
+              </View>
             </View>
           ))}
         </View>
       </View>
 
+      {/* CTA */}
       <View className='cta' onClick={() => goChat()}>
-        <Text className='cta-text'>开始规划旅行</Text>
-        <Text className='cta-icon'>→</Text>
+        <View className='cta-content'>
+          <Text className='cta-text'>开始规划旅行</Text>
+          <Text className='cta-sub'>告诉我你想去哪，剩下的交给我</Text>
+        </View>
+        <View className='cta-arrow'>
+          <Text className='cta-arrow-icon'>→</Text>
+        </View>
       </View>
     </View>
   )

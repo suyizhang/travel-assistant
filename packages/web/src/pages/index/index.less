@@ -3,83 +3,98 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 100px 36px 48px;
+  padding: 24px 40px 60px;
   background: var(--c-bg);
   box-sizing: border-box;
   position: relative;
   overflow: hidden;
 }
 
-.index-bg-orb {
+// ---- 背景装饰 ----
+.index-deco {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
 
   &--1 {
-    width: 500px;
-    height: 500px;
-    top: -15%;
-    right: -25%;
-    background: radial-gradient(circle, rgba(200, 149, 108, 0.1) 0%, transparent 70%);
+    width: 480px;
+    height: 480px;
+    top: -120px;
+    right: -160px;
+    background: radial-gradient(circle, rgba(200, 149, 108, 0.12) 0%, transparent 65%);
   }
   &--2 {
-    width: 400px;
-    height: 400px;
-    bottom: 5%;
-    left: -20%;
+    width: 360px;
+    height: 360px;
+    bottom: 120px;
+    left: -140px;
+    background: radial-gradient(circle, rgba(180, 140, 100, 0.08) 0%, transparent 65%);
+  }
+  &--3 {
+    width: 200px;
+    height: 200px;
+    top: 40%;
+    right: -60px;
     background: radial-gradient(circle, rgba(200, 149, 108, 0.06) 0%, transparent 70%);
   }
 }
 
-// ---- Top bar ----
+// ---- 用户栏 ----
 .topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 100;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 36px;
-  background: rgba(250, 247, 242, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--c-border);
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
 }
 
 .topbar-user {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 
 .topbar-avatar {
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  border: 2px solid var(--c-primary-light);
-  box-shadow: 0 2px 8px var(--c-shadow);
+  border: 3px solid var(--c-primary-light);
+  box-shadow: 0 2px 12px rgba(200, 149, 108, 0.2);
+}
+
+.topbar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.topbar-greeting {
+  font-size: 20px;
+  color: var(--c-text-muted);
+  font-weight: 400;
 }
 
 .topbar-name {
-  font-size: 26px;
+  font-size: 28px;
   color: var(--c-text);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .topbar-logout {
-  font-size: 24px;
+  font-size: 22px;
   color: var(--c-text-muted);
-  padding: 10px 20px;
+  padding: 10px 24px;
   border: 1px solid var(--c-border);
   border-radius: 100px;
-  letter-spacing: 1px;
+  background: var(--c-bg-card);
 
   &:active {
     background: var(--c-bg-warm);
     color: #b8553a;
+    border-color: #e0c0b0;
   }
 }
 
@@ -88,78 +103,110 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 64px;
+  padding: 48px 0 36px;
   position: relative;
   z-index: 1;
 }
 
-.hero-badge {
-  background: var(--c-bg-warm);
-  border: 1px solid var(--c-border);
-  border-radius: 100px;
-  padding: 8px 28px;
-  margin-bottom: 36px;
+.hero-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 160px;
+  height: 160px;
+  margin-bottom: 28px;
 }
 
-.hero-badge-text {
-  font-size: 20px;
-  color: var(--c-primary-dark);
-  letter-spacing: 3px;
-  font-weight: 500;
+.hero-icon-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(200, 149, 108, 0.15) 0%, rgba(200, 149, 108, 0.04) 100%);
+  border: 2px solid rgba(200, 149, 108, 0.12);
 }
 
 .hero-icon {
-  font-size: 100px;
-  margin-bottom: 24px;
-  filter: drop-shadow(0 4px 16px rgba(200, 149, 108, 0.25));
+  font-size: 80px;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 4px 12px rgba(200, 149, 108, 0.2));
 }
 
 .hero-title {
-  font-family: var(--font-display);
-  font-size: 64px;
+  font-size: 56px;
   font-weight: 700;
-  color: var(--c-accent);
-  letter-spacing: 6px;
+  color: var(--c-text);
+  letter-spacing: 8px;
   margin-bottom: 12px;
 }
 
 .hero-subtitle {
-  font-size: 28px;
-  color: var(--c-text-secondary);
-  font-weight: 300;
-  letter-spacing: 3px;
-  margin-bottom: 28px;
-}
-
-.hero-line {
-  width: 40px;
-  height: 2px;
-  background: var(--c-primary);
-  margin-bottom: 24px;
-}
-
-.hero-desc {
-  font-size: 24px;
+  font-size: 26px;
   color: var(--c-text-muted);
+  font-weight: 300;
   letter-spacing: 2px;
 }
 
-// ---- Quick questions ----
-.quick {
-  width: 100%;
+// ---- 能力标签 ----
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
   margin-bottom: 48px;
   position: relative;
   z-index: 1;
 }
 
-.quick-label {
+.feature-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 22px;
+  background: var(--c-bg-warm);
+  border: 1px solid var(--c-border);
+  border-radius: 100px;
+}
+
+.feature-chip-icon {
   font-size: 24px;
-  font-weight: 600;
+}
+
+.feature-chip-label {
+  font-size: 22px;
   color: var(--c-text-secondary);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 24px;
-  display: block;
+  font-weight: 500;
+}
+
+// ---- 快捷问题 ----
+.quick {
+  width: 100%;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.quick-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.quick-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c-primary);
+}
+
+.quick-label {
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--c-text);
+  letter-spacing: 1px;
 }
 
 .quick-grid {
@@ -171,19 +218,26 @@
 .quick-card {
   display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: space-between;
   background: var(--c-bg-card);
   border: 1px solid var(--c-border);
   border-radius: var(--radius-md);
-  padding: 28px 32px;
-  box-shadow: 0 1px 4px var(--c-shadow);
-  transition: all 0.2s ease;
+  padding: 28px 28px;
+  box-shadow: 0 2px 8px var(--c-shadow);
 
   &:active {
     background: var(--c-bg-warm);
-    box-shadow: 0 2px 12px var(--c-shadow-strong);
-    transform: translateY(-1px);
+    border-color: var(--c-primary-light);
+    box-shadow: 0 4px 16px var(--c-shadow-strong);
   }
+}
+
+.quick-card-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex: 1;
+  min-width: 0;
 }
 
 .quick-card-icon {
@@ -192,39 +246,67 @@
 }
 
 .quick-card-text {
-  flex: 1;
   font-size: 28px;
   color: var(--c-text);
   font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.quick-card-arrow {
-  font-size: 28px;
-  color: var(--c-primary);
-  font-weight: 300;
+.quick-card-tag {
   flex-shrink: 0;
+  padding: 6px 16px;
+  background: var(--c-bg-warm);
+  border-radius: 100px;
+  border: 1px solid rgba(200, 149, 108, 0.15);
 }
 
-// ---- CTA Button ----
+.quick-card-tag-text {
+  font-size: 20px;
+  color: var(--c-primary-dark);
+  font-weight: 500;
+}
+
+// ---- CTA 按钮 ----
 .cta {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-  background: var(--c-accent);
-  border-radius: var(--radius-md);
-  padding: 32px 0;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #3a3632 0%, #2c2826 100%);
+  border-radius: var(--radius-lg);
+  padding: 32px 32px;
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.12),
-    0 1px 3px rgba(0, 0, 0, 0.08);
+    0 8px 24px rgba(44, 28, 12, 0.18),
+    0 2px 6px rgba(44, 28, 12, 0.1);
   position: relative;
   z-index: 1;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200, 149, 108, 0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
 
   &:active {
-    transform: scale(0.99);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(44, 28, 12, 0.12);
   }
+}
+
+.cta-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
 }
 
 .cta-text {
@@ -234,7 +316,28 @@
   letter-spacing: 2px;
 }
 
-.cta-icon {
-  color: var(--c-primary-light);
+.cta-sub {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 22px;
+  font-weight: 300;
+}
+
+.cta-arrow {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-dark) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 4px 12px rgba(200, 149, 108, 0.3);
+}
+
+.cta-arrow-icon {
+  color: #fff;
   font-size: 32px;
+  font-weight: 300;
 }

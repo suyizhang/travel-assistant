@@ -51,10 +51,15 @@ export async function h5Login(code: string) {
 }
 
 /** 发送消息 */
-export async function chat(message: string, sessionId?: string) {
+export async function chat(
+  message: string,
+  sessionId?: string,
+  location?: { latitude: number; longitude: number; city?: string }
+) {
   return request<{ reply: string; session_id: string }>('/api/chat', {
     message,
     session_id: sessionId,
+    ...(location ? { location } : {}),
   })
 }
 

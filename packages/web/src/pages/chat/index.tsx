@@ -27,8 +27,37 @@ export default function Chat() {
   const sessionId = useRef(`s_${Date.now()}`)
   const scrollId = useRef('msg-bottom')
   const [user] = useState(getUserInfo)
+  const locationRef = useRef<{ latitude: number; longitude: number; city?: string } | null>(null)
 
   useEffect(() => {
+    // H5 端：未登录则跳登录页
+    if (process.env.TARO_ENV === 'h5') {
+      const token = Taro.getStorageSync('token')
+      if (!token) {
+        Taro.redirectTo({ url: '/pages/login/index' })
+        return
+      }
+    }
+
+    // 获取用户定位
+    if (process.env.TARO_ENV === 'weapp') {
+      Taro.getLocation({ type: 'gcj02' })
+        .then((loc) => {
+          locationRef.current = { latitude: loc.latitude, longitude: loc.longitude }
+        })
+        .catch(() => {})
+    } else {
+      // H5 端使用 Geolocation API
+      if (navigator?.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            locationRef.current = { latitude: pos.coords.latitude, longitude: pos.coords.longitude }
+          },
+          () => {}
+        )
+      }
+    }
+
     const q = router.params.q
     if (q) {
       sendMessage(decodeURIComponent(q))
@@ -58,7 +87,7 @@ export default function Chat() {
       setLoading(true)
 
       try {
-        const res = await chat(msg, sessionId.current)
+        const res = await chat(msg, sessionId.current, locationRef.current || undefined)
         setMessages((prev) =>
           prev.map((m) =>
             m.id === aiMsg.id
@@ -103,34 +132,57 @@ export default function Chat() {
 
   return (
     <View className='chat'>
-      <View className='chat-header'>
-        <View className='chat-header-back' onClick={goBack}>
-          <Text className='chat-header-back-icon'>←</Text>
+      {/* Header — 仅 H5 端显示自定义 header */}
+      {process.env.TARO_ENV === 'h5' && (
+        <View className='chat-header'>
+          <View className='chat-header-left' onClick={goBack}>
+            <Text className='chat-header-back-icon'>‹</Text>
+          </View>
+          <View className='chat-header-center'>
+            <View className='chat-header-avatar-wrap'>
+              <Text className='chat-header-avatar-emoji'>✈️</Text>
+              <View className='chat-header-online-dot' />
+            </View>
+            <View className='chat-header-info'>
+              <Text className='chat-header-title'>旅伴</Text>
+              <Text className='chat-header-status'>{loading ? '正在思考...' : '在线'}</Text>
+            </View>
+          </View>
+          <View className='chat-header-right' onClick={handleClear}>
+            <Text className='chat-header-clear-icon'>🗑</Text>
+          </View>
         </View>
-        <View className='chat-header-center'>
-          <Text className='chat-header-title'>旅伴</Text>
-          <Text className='chat-header-dot' />
-          <Text className='chat-header-status'>{loading ? '思考中' : '在线'}</Text>
-        </View>
-        <View className='chat-header-action' onClick={handleClear}>
-          <Text className='chat-header-action-text'>清除</Text>
-        </View>
-      </View>
+      )}
 
+      {/* Messages */}
       <ScrollView
         className='chat-messages'
         scrollY
         scrollIntoView={scrollId.current}
         scrollWithAnimation
+        enhanced
+        showScrollbar={false}
       >
         {messages.length === 0 && (
-          <View className='chat-welcome'>
-            <View className='chat-welcome-icon'>✈️</View>
-            <Text className='chat-welcome-title'>欢迎来到旅伴</Text>
-            <Text className='chat-welcome-desc'>
-              我是你的 AI 旅行规划助手，问我任何旅行相关的问题吧
-            </Text>
-            <View className='chat-welcome-line' />
+          <View className='chat-empty'>
+            <View className='chat-empty-card'>
+              <Text className='chat-empty-icon'>🌍</Text>
+              <Text className='chat-empty-title'>开始你的旅行对话</Text>
+              <Text className='chat-empty-desc'>
+                问我任何旅行相关的问题，我会为你提供专业的建议
+              </Text>
+              <View className='chat-empty-divider' />
+              <View className='chat-empty-hints'>
+                <View className='chat-empty-hint' onClick={() => sendMessage('推荐五一去哪玩？')}>
+                  <Text className='chat-empty-hint-icon'>🗺️</Text>
+                  <Text className='chat-empty-hint-text'>推荐五一去哪玩？</Text>
+                </View>
+                <View className='chat-empty-hint' onClick={() => sendMessage('三亚最近天气怎么样？')}>
+                  <Text className='chat-empty-hint-icon'>🏖️</Text>
+                  <Text className='chat-empty-hint-text'>三亚最近天气怎么样？</Text>
+                </View>
+              </View>
+            </View>
           </View>
         )}
 
@@ -141,45 +193,50 @@ export default function Chat() {
             className={`msg ${msg.role === 'user' ? 'msg--user' : 'msg--ai'}`}
           >
             {msg.role === 'user' ? (
-              <>
-                <View className='msg-body msg-body--user'>
-                  <View className='msg-bubble msg-bubble--user'>
-                    <Text className='msg-text'>{msg.content}</Text>
-                  </View>
+              <View className='msg-row msg-row--user'>
+                <View className='msg-bubble msg-bubble--user'>
+                  <Text className='msg-text msg-text--user'>{msg.content}</Text>
                 </View>
-                {user && (
+                {user?.avatar_url ? (
                   <Image className='msg-avatar msg-avatar--user' src={user.avatar_url} mode='aspectFill' />
-                )}
-              </>
-            ) : (
-              <>
-                <View className='msg-avatar msg-avatar--ai'>
-                  <Text>✈️</Text>
-                </View>
-                <View className='msg-body'>
-                  <Text className='msg-label'>旅伴</Text>
-                  <View className='msg-bubble msg-bubble--ai'>
-                    {msg.loading ? (
-                      <View className='msg-typing'>
-                        <View className='msg-typing-dot' />
-                        <View className='msg-typing-dot' />
-                        <View className='msg-typing-dot' />
-                      </View>
-                    ) : (
-                      <Markdown content={msg.content} className='msg-text--ai' />
-                    )}
+                ) : (
+                  <View className='msg-avatar-default msg-avatar-default--user'>
+                    <Text className='msg-avatar-default-text'>我</Text>
                   </View>
+                )}
+              </View>
+            ) : (
+              <View className='msg-row msg-row--ai'>
+                <View className='msg-ai-avatar'>
+                  <Text className='msg-ai-avatar-emoji'>✈️</Text>
                 </View>
-              </>
+                <View className='msg-bubble msg-bubble--ai'>
+                  {msg.loading ? (
+                    <View className='msg-typing'>
+                      <View className='msg-typing-dot' />
+                      <View className='msg-typing-dot' />
+                      <View className='msg-typing-dot' />
+                    </View>
+                  ) : (
+                    <Markdown content={msg.content} className='msg-md' />
+                  )}
+                </View>
+              </View>
             )}
           </View>
         ))}
 
-        <View id='msg-bottom' style={{ height: '1px' }} />
+        <View id='msg-bottom' style={{ height: '2px' }} />
       </ScrollView>
 
+      {/* Input bar */}
       <View className='chat-bar'>
         <View className='chat-bar-inner'>
+          {messages.length > 0 && (
+            <View className='chat-bar-clear' onClick={handleClear}>
+              <Text className='chat-bar-clear-icon'>🗑</Text>
+            </View>
+          )}
           <Input
             className='chat-bar-input'
             placeholder='输入你的旅行问题...'

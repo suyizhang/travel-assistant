@@ -7,8 +7,9 @@ export default defineAppConfig({
   ],
   window: {
     backgroundTextStyle: 'light',
-    navigationBarBackgroundColor: '#4F46E5',
+    navigationBarBackgroundColor: '#faf7f2',
     navigationBarTitleText: '旅伴',
-    navigationBarTextStyle: 'white'
-  }
+    navigationBarTextStyle: 'black'
+  },
+  requiredPrivateInfos: ['getLocation']
 })
