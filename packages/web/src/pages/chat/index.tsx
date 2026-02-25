@@ -2,6 +2,7 @@ import { View, Text, Input, ScrollView, Image } from '@tarojs/components'
 import Taro, { useRouter } from '@tarojs/taro'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { chat, clearSession } from '../../services/api'
+import Markdown from '../../components/markdown'
 import './index.less'
 
 interface Message {
@@ -139,29 +140,37 @@ export default function Chat() {
             id={msg.id}
             className={`msg ${msg.role === 'user' ? 'msg--user' : 'msg--ai'}`}
           >
-            {msg.role === 'assistant' && (
-              <View className='msg-avatar msg-avatar--ai'>
-                <Text>✈️</Text>
-              </View>
-            )}
-            <View className='msg-body'>
-              {msg.role === 'assistant' && (
-                <Text className='msg-label'>旅伴</Text>
-              )}
-              <View className={`msg-bubble ${msg.role === 'user' ? 'msg-bubble--user' : 'msg-bubble--ai'}`}>
-                {msg.loading ? (
-                  <View className='msg-typing'>
-                    <View className='msg-typing-dot' />
-                    <View className='msg-typing-dot' />
-                    <View className='msg-typing-dot' />
+            {msg.role === 'user' ? (
+              <>
+                <View className='msg-body msg-body--user'>
+                  <View className='msg-bubble msg-bubble--user'>
+                    <Text className='msg-text'>{msg.content}</Text>
                   </View>
-                ) : (
-                  <Text className='msg-text'>{msg.content}</Text>
+                </View>
+                {user && (
+                  <Image className='msg-avatar msg-avatar--user' src={user.avatar_url} mode='aspectFill' />
                 )}
-              </View>
-            </View>
-            {msg.role === 'user' && user && (
-              <Image className='msg-avatar msg-avatar--user' src={user.avatar_url} mode='aspectFill' />
+              </>
+            ) : (
+              <>
+                <View className='msg-avatar msg-avatar--ai'>
+                  <Text>✈️</Text>
+                </View>
+                <View className='msg-body'>
+                  <Text className='msg-label'>旅伴</Text>
+                  <View className='msg-bubble msg-bubble--ai'>
+                    {msg.loading ? (
+                      <View className='msg-typing'>
+                        <View className='msg-typing-dot' />
+                        <View className='msg-typing-dot' />
+                        <View className='msg-typing-dot' />
+                      </View>
+                    ) : (
+                      <Markdown content={msg.content} className='msg-text--ai' />
+                    )}
+                  </View>
+                </View>
+              </>
             )}
           </View>
         ))}

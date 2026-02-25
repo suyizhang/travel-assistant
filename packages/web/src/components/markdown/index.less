@@ -1,0 +1,72 @@
+.md {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.md-paragraph {
+  font-size: 28px;
+  line-height: 1.8;
+  color: inherit;
+}
+
+.md-heading {
+  font-weight: 700;
+  color: inherit;
+  line-height: 1.5;
+
+  &--1 {
+    font-size: 34px;
+    margin-top: 8px;
+  }
+  &--2 {
+    font-size: 30px;
+    margin-top: 4px;
+  }
+  &--3 {
+    font-size: 28px;
+  }
+}
+
+.md-bold {
+  font-weight: 700;
+}
+
+.md-italic {
+  font-style: italic;
+}
+
+.md-code {
+  font-family: 'SF Mono', 'Menlo', monospace;
+  font-size: 24px;
+  background: rgba(0, 0, 0, 0.06);
+  padding: 2px 10px;
+  border-radius: 6px;
+}
+
+.md-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 28px;
+  line-height: 1.8;
+  color: inherit;
+}
+
+.md-list-dot {
+  color: var(--c-primary, #c8956c);
+  font-size: 28px;
+  line-height: 1.8;
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+.md-list-text {
+  flex: 1;
+}
+
+.md-divider {
+  height: 1px;
+  background: var(--c-border, #e8e0d8);
+  margin: 8px 0;
+}
