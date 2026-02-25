@@ -1,0 +1,16 @@
+{
+  "name": "glm-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "description": "旅伴 AI 旅行规划助手（monorepo）",
+  "scripts": {
+    "dev:server": "pnpm --filter @glm/server dev",
+    "dev:h5": "pnpm --filter @glm/web dev:h5",
+    "dev:weapp": "pnpm --filter @glm/web dev:weapp",
+    "build:h5": "pnpm --filter @glm/web build:h5",
+    "build:weapp": "pnpm --filter @glm/web build:weapp",
+    "start:server": "pnpm --filter @glm/server start",
+    "deploy:server": "pnpm --filter @glm/server deploy",
+    "deploy:h5": "bash deploy-h5.sh"
+  }
+}

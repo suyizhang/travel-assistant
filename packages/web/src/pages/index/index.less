@@ -1,0 +1,240 @@
+.index {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 100px 36px 48px;
+  background: var(--c-bg);
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+}
+
+.index-bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+
+  &--1 {
+    width: 500px;
+    height: 500px;
+    top: -15%;
+    right: -25%;
+    background: radial-gradient(circle, rgba(200, 149, 108, 0.1) 0%, transparent 70%);
+  }
+  &--2 {
+    width: 400px;
+    height: 400px;
+    bottom: 5%;
+    left: -20%;
+    background: radial-gradient(circle, rgba(200, 149, 108, 0.06) 0%, transparent 70%);
+  }
+}
+
+// ---- Top bar ----
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 36px;
+  background: rgba(250, 247, 242, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.topbar-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid var(--c-primary-light);
+  box-shadow: 0 2px 8px var(--c-shadow);
+}
+
+.topbar-name {
+  font-size: 26px;
+  color: var(--c-text);
+  font-weight: 500;
+}
+
+.topbar-logout {
+  font-size: 24px;
+  color: var(--c-text-muted);
+  padding: 10px 20px;
+  border: 1px solid var(--c-border);
+  border-radius: 100px;
+  letter-spacing: 1px;
+
+  &:active {
+    background: var(--c-bg-warm);
+    color: #b8553a;
+  }
+}
+
+// ---- Hero ----
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 64px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-badge {
+  background: var(--c-bg-warm);
+  border: 1px solid var(--c-border);
+  border-radius: 100px;
+  padding: 8px 28px;
+  margin-bottom: 36px;
+}
+
+.hero-badge-text {
+  font-size: 20px;
+  color: var(--c-primary-dark);
+  letter-spacing: 3px;
+  font-weight: 500;
+}
+
+.hero-icon {
+  font-size: 100px;
+  margin-bottom: 24px;
+  filter: drop-shadow(0 4px 16px rgba(200, 149, 108, 0.25));
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: 64px;
+  font-weight: 700;
+  color: var(--c-accent);
+  letter-spacing: 6px;
+  margin-bottom: 12px;
+}
+
+.hero-subtitle {
+  font-size: 28px;
+  color: var(--c-text-secondary);
+  font-weight: 300;
+  letter-spacing: 3px;
+  margin-bottom: 28px;
+}
+
+.hero-line {
+  width: 40px;
+  height: 2px;
+  background: var(--c-primary);
+  margin-bottom: 24px;
+}
+
+.hero-desc {
+  font-size: 24px;
+  color: var(--c-text-muted);
+  letter-spacing: 2px;
+}
+
+// ---- Quick questions ----
+.quick {
+  width: 100%;
+  margin-bottom: 48px;
+  position: relative;
+  z-index: 1;
+}
+
+.quick-label {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--c-text-secondary);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  display: block;
+}
+
+.quick-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.quick-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--c-bg-card);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  padding: 28px 32px;
+  box-shadow: 0 1px 4px var(--c-shadow);
+  transition: all 0.2s ease;
+
+  &:active {
+    background: var(--c-bg-warm);
+    box-shadow: 0 2px 12px var(--c-shadow-strong);
+    transform: translateY(-1px);
+  }
+}
+
+.quick-card-icon {
+  font-size: 36px;
+  flex-shrink: 0;
+}
+
+.quick-card-text {
+  flex: 1;
+  font-size: 28px;
+  color: var(--c-text);
+  font-weight: 400;
+}
+
+.quick-card-arrow {
+  font-size: 28px;
+  color: var(--c-primary);
+  font-weight: 300;
+  flex-shrink: 0;
+}
+
+// ---- CTA Button ----
+.cta {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: var(--c-accent);
+  border-radius: var(--radius-md);
+  padding: 32px 0;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.12),
+    0 1px 3px rgba(0, 0, 0, 0.08);
+  position: relative;
+  z-index: 1;
+
+  &:active {
+    transform: scale(0.99);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.cta-text {
+  color: #fff;
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 2px;
+}
+
+.cta-icon {
+  color: var(--c-primary-light);
+  font-size: 32px;
+}

@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+
+# server build artifacts
+packages/server/dist/
+packages/server/*.js
+packages/server/*.d.ts
+packages/server/*.js.map
+
+# web build artifacts
+packages/web/dist/
+
+# IDE
+.vscode/
+.DS_Store
