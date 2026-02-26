@@ -13,18 +13,25 @@ const SYSTEM_PROMPT = `你是一位经验丰富的专业旅行规划师，名叫
 3. **景点推荐** — 使用 recommend_attractions 工具推荐热门景点，支持按偏好筛选
 4. **行程规划** — 使用 plan_itinerary 工具生成详细的每日行程安排
 5. **预算估算** — 使用 estimate_budget 工具估算旅行费用
-6. **旅行建议** — 签证、交通、住宿、美食、安全等实用建议
+6. **口碑查询** — 使用 get_attraction_reviews 工具查询景点的用户真实评价
+7. **旅行建议** — 签证、交通、住宿、美食、安全等实用建议
 
 ## 交互风格
 - 用中文回答，语气热情友好，像朋友聊天一样
 - 回答简洁实用，适合在手机上阅读
 - 主动追问用户的偏好和需求，不要一次性输出太多信息
-- 当用户提到目的地时，主动调用工具获取天气、景点等信息
+- 当用户提到目的地时，主动调用工具获取天气、景点、口碑等信息
 - 给建议时注明实用 tips（省钱技巧、避坑指南等）
+
+## 关于口碑评价
+- 当推荐景点时，使用 get_attraction_reviews 工具获取用户真实评价
+- 在回复中简洁展示口碑信息，如「💬 X位用户推荐 ⭐X.X」
+- 如果评价中有实用的避坑或建议，可以适当引用
+- 鼓励用户查看详细评价：「点击[查看评价]可以看到更多真实体验」
 
 ## 对话策略
 - 用户说想旅行但没确定目的地 → 先问预算、时间、偏好，再推荐
-- 用户确定了目的地 → 依次提供天气、景点、行程、预算
+- 用户确定了目的地 → 依次提供天气、景点、口碑、行程、预算
 - 用户问具体问题 → 直接回答，必要时调用工具辅助
 - 如果有用户定位信息，在推荐行程时以用户所在城市为出发地，主动给出交通方式（飞机/高铁/自驾）和大致耗时`;
 
@@ -35,11 +42,15 @@ interface Session {
 }
 
 // 当历史超过此值时，触发摘要压缩
-const SUMMARIZE_THRESHOLD = 20;
+const SUMMARIZE_THRESHOLD = 10;
 // 压缩后保留最近的消息条数
-const KEEP_RECENT = 6;
+const KEEP_RECENT = 4;
 // 会话过期时间
 const SESSION_TTL = 2 * 60 * 60 * 1000;
+// 粗估 token 上限（模型 94208，留 12000 给输出 + system prompt）
+const MAX_INPUT_TOKENS = 70000;
+// 粗估：1 个中文字符 ≈ 2 tokens
+const CHARS_PER_TOKEN = 1.5;
 
 export class Assistant {
   private agent: any;
@@ -91,6 +102,31 @@ export class Assistant {
         this.sessions.delete(id);
       }
     }
+  }
+
+  /**
+   * 粗估消息列表的 token 数
+   */
+  private estimateTokens(messages: BaseMessage[]): number {
+    let chars = 0;
+    for (const m of messages) {
+      const content = typeof m.content === "string" ? m.content : JSON.stringify(m.content);
+      chars += content.length;
+    }
+    return Math.ceil(chars / CHARS_PER_TOKEN);
+  }
+
+  /**
+   * 硬截断：如果消息 token 超限，从头部移除旧消息直到安全
+   */
+  private truncateToFit(messages: BaseMessage[]): BaseMessage[] {
+    while (messages.length > 1 && this.estimateTokens(messages) > MAX_INPUT_TOKENS) {
+      // 移除最早的一条（跳过 system 消息）
+      const idx = messages.findIndex((m) => m._getType() !== "system");
+      if (idx === -1) break;
+      messages.splice(idx, 1);
+    }
+    return messages;
   }
 
   /**
@@ -189,27 +225,69 @@ export class Assistant {
     // 超过阈值时先压缩历史
     await this.compressHistory(session);
 
-    const response = await this.agent.invoke({
-      messages: this.buildMessages(session, location),
-    });
+    // 构建消息并确保不超限
+    let inputMessages = this.buildMessages(session, location);
+    inputMessages = this.truncateToFit(inputMessages);
 
-    const messages: BaseMessage[] = response.messages;
-    const lastAIMessage = messages
-      .filter(
-        (m: BaseMessage) =>
-          m._getType() === "ai" &&
-          typeof m.content === "string" &&
-          m.content.length > 0
-      )
-      .pop();
+    const estimatedTokens = this.estimateTokens(inputMessages);
+    console.log(`[Token] 预估输入 ~${estimatedTokens} tokens, 消息数 ${inputMessages.length}`);
 
-    const reply = lastAIMessage
-      ? (lastAIMessage.content as string)
-      : "抱歉，我无法处理这个请求。";
+    try {
+      const response = await this.agent.invoke({
+        messages: inputMessages,
+      });
 
-    session.history.push(new AIMessage(reply));
+      const messages: BaseMessage[] = response.messages;
+      const lastAIMessage = messages
+        .filter(
+          (m: BaseMessage) =>
+            m._getType() === "ai" &&
+            typeof m.content === "string" &&
+            m.content.length > 0
+        )
+        .pop();
 
-    return reply;
+      const reply = lastAIMessage
+        ? (lastAIMessage.content as string)
+        : "抱歉，我无法处理这个请求。";
+
+      session.history.push(new AIMessage(reply));
+      return reply;
+    } catch (err: any) {
+      const errMsg = err?.message || String(err);
+      // 如果是 token 超限错误，强制压缩后重试一次
+      if (errMsg.includes("maximum context length") || errMsg.includes("token")) {
+        console.warn("[Token] 超限，强制压缩重试...");
+        // 强制压缩：只保留最近 2 条
+        session.history = session.history.slice(-2);
+        session.summary = "";
+
+        let retryMessages = this.buildMessages(session, location);
+        retryMessages = this.truncateToFit(retryMessages);
+
+        const retryResponse = await this.agent.invoke({
+          messages: retryMessages,
+        });
+
+        const retryMsgs: BaseMessage[] = retryResponse.messages;
+        const retryAI = retryMsgs
+          .filter(
+            (m: BaseMessage) =>
+              m._getType() === "ai" &&
+              typeof m.content === "string" &&
+              m.content.length > 0
+          )
+          .pop();
+
+        const reply = retryAI
+          ? (retryAI.content as string)
+          : "抱歉，对话过长，请清除会话后重试。";
+
+        session.history.push(new AIMessage(reply));
+        return reply;
+      }
+      throw err;
+    }
   }
 
   clearHistory(sessionId = "default") {
