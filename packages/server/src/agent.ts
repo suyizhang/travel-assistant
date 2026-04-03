@@ -27,7 +27,9 @@ const SYSTEM_PROMPT = `你是一位经验丰富的专业旅行规划师，名叫
 - 当推荐景点时，使用 get_attraction_reviews 工具获取用户真实评价
 - 在回复中简洁展示口碑信息，如「💬 X位用户推荐 ⭐X.X」
 - 如果评价中有实用的避坑或建议，可以适当引用
-- 鼓励用户查看详细评价：「点击[查看评价]可以看到更多真实体验」
+- 推荐景点时，在口碑信息后附上评价链接，格式为：[查看评价](review://城市/景点)
+  例如：💬 5位用户推荐 ⭐4.8 [查看评价](review://北京/故宫博物院)
+- 用户可以通过这个链接查看详细评价和提交自己的评价
 
 ## 对话策略
 - 用户说想旅行但没确定目的地 → 先问预算、时间、偏好，再推荐
@@ -51,6 +53,8 @@ const SESSION_TTL = 2 * 60 * 60 * 1000;
 const MAX_INPUT_TOKENS = 70000;
 // 粗估：1 个中文字符 ≈ 2 tokens
 const CHARS_PER_TOKEN = 1.5;
+// 最大会话数量（LRU 淘汰）
+const MAX_SESSIONS = 200;
 
 export class Assistant {
   private agent: any;
@@ -97,10 +101,22 @@ export class Assistant {
 
   private cleanExpiredSessions() {
     const now = Date.now();
+    // 1. 清理过期会话
     for (const [id, session] of this.sessions) {
       if (now - session.lastActiveAt > SESSION_TTL) {
         this.sessions.delete(id);
       }
+    }
+
+    // 2. LRU 淘汰：超过最大数量时，删除最久未活跃的会话
+    if (this.sessions.size > MAX_SESSIONS) {
+      const entries = [...this.sessions.entries()]
+        .sort((a, b) => a[1].lastActiveAt - b[1].lastActiveAt);
+      const toRemove = entries.slice(0, entries.length - MAX_SESSIONS);
+      for (const [id] of toRemove) {
+        this.sessions.delete(id);
+      }
+      console.log(`[LRU] 淘汰 ${toRemove.length} 个不活跃会话，当前 ${this.sessions.size} 个`);
     }
   }
 

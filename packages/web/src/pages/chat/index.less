@@ -14,6 +14,78 @@
 }
 
 // ---- Header (仅 H5 端显示) ----
+// ---- Offline banner ----
+.chat-offline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #fef3cd 0%, #fce8b2 100%);
+  border-bottom: 1px solid #f0d68a;
+  z-index: 20;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.chat-offline-icon {
+  font-size: 24px;
+}
+
+.chat-offline-text {
+  font-size: 24px;
+  color: #856404;
+  font-weight: 500;
+}
+
+// ---- Guest limit banner ----
+.chat-guest-limit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #f5efe6 0%, #efe4d6 100%);
+  border-bottom: 1px solid #e8d5c0;
+  z-index: 20;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.chat-guest-limit-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-guest-limit-icon {
+  font-size: 24px;
+}
+
+.chat-guest-limit-text {
+  font-size: 24px;
+  color: #8b6e4e;
+  font-weight: 500;
+}
+
+.chat-guest-limit-btn {
+  padding: 8px 24px;
+  background: linear-gradient(135deg, #c8956c 0%, #a0714e 100%);
+  border-radius: 100px;
+  box-shadow: 0 2px 6px rgba(200, 149, 108, 0.25);
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.chat-guest-limit-btn-text {
+  font-size: 22px;
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
 .chat-header {
   display: flex;
   align-items: center;
@@ -107,16 +179,22 @@
   letter-spacing: 0.5px;
 }
 
-.chat-header-right {
-  width: 64px;
-  height: 64px;
+.chat-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.chat-header-btn {
+  width: 56px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   background: #fff;
   border: 1px solid #e8e0d6;
-  flex-shrink: 0;
   box-shadow: 0 1px 3px rgba(44, 28, 12, 0.08);
 
   &:active {
@@ -125,8 +203,8 @@
   }
 }
 
-.chat-header-clear-icon {
-  font-size: 24px;
+.chat-header-btn-icon {
+  font-size: 22px;
 }
 
 // ---- Messages ----
@@ -371,6 +449,70 @@
   30% { opacity: 1; transform: translateY(-8px); }
 }
 
+// ---- Retry button ----
+.msg-retry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 10px 20px;
+  background: #fdf0e6;
+  border: 1px solid #e8c5a8;
+  border-radius: 20px;
+  width: fit-content;
+
+  &:active {
+    background: #f5dcc8;
+    transform: scale(0.96);
+  }
+}
+
+.msg-retry-icon {
+  font-size: 26px;
+  color: #c8956c;
+  font-weight: 600;
+}
+
+.msg-retry-text {
+  font-size: 24px;
+  color: #c8956c;
+  font-weight: 500;
+}
+
+// ---- Message actions (copy/share) ----
+.msg-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(232, 224, 214, 0.6);
+}
+
+.msg-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 16px;
+  background: transparent;
+
+  &:active {
+    background: #f5efe6;
+    transform: scale(0.96);
+  }
+}
+
+.msg-action-icon {
+  font-size: 20px;
+}
+
+.msg-action-text {
+  font-size: 20px;
+  color: #b5a99a;
+  font-weight: 500;
+}
+
 // ---- Input bar ----
 .chat-bar {
   padding: 16px 24px;
@@ -451,6 +593,31 @@
 
 .chat-bar-send-icon {
   font-size: 30px;
+  color: #fff;
+  font-weight: 700;
+}
+
+// ---- Cancel button ----
+.chat-bar-cancel {
+  width: 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e8716d 0%, #d4524e 100%);
+  box-shadow:
+    0 2px 8px rgba(232, 113, 109, 0.3),
+    0 4px 12px rgba(232, 113, 109, 0.15);
+  flex-shrink: 0;
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+.chat-bar-cancel-icon {
+  font-size: 22px;
   color: #fff;
   font-weight: 700;
 }

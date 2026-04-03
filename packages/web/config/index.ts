@@ -1,7 +1,37 @@
 import { defineConfig, type UserConfigExport } from '@tarojs/cli'
+import type { Plugin } from 'vite'
 
 import devConfig from './dev'
 import prodConfig from './prod'
+
+/**
+ * Vite 插件：SPA History Fallback
+ * browser 路由模式下，将非文件请求（无扩展名）回退到 index.html
+ */
+function spaFallbackPlugin(): Plugin {
+  return {
+    name: 'taro-spa-history-fallback',
+    configureServer(server) {
+      server.middlewares.use((req, _res, next) => {
+        const url = req.url || ''
+        // 跳过静态资源、API、HMR 等请求
+        if (
+          url.startsWith('/@') ||
+          url.startsWith('/api') ||
+          url.startsWith('/__') ||
+          url.includes('.')
+        ) {
+          return next()
+        }
+        // 非文件路径的 GET 请求全部回退到 /index.html
+        if (req.method === 'GET' && !url.includes('.')) {
+          req.url = '/index.html'
+        }
+        next()
+      })
+    },
+  }
+}
 
 // https://taro-docs.jd.com/docs/next/config#defineconfig-辅助函数
 export default defineConfig<'vite'>(async (merge, { command, mode }) => {
@@ -29,7 +59,10 @@ export default defineConfig<'vite'>(async (merge, { command, mode }) => {
       }
     },
     framework: 'react',
-    compiler: 'vite',
+    compiler: {
+      type: 'vite',
+      vitePlugins: [spaFallbackPlugin()],
+    },
     mini: {
       postcss: {
         pxtransform: {

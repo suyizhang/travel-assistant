@@ -133,6 +133,37 @@
   letter-spacing: 1px;
 }
 
+.login-guest-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: transparent;
+  border: 1.5px solid var(--c-border);
+  border-radius: var(--radius-md);
+  padding: 24px 0;
+  margin-bottom: 28px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+
+  &:active {
+    background: var(--c-bg-warm);
+    transform: scale(0.98);
+  }
+}
+
+.login-guest-icon {
+  font-size: 32px;
+}
+
+.login-guest-text {
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--c-text-secondary);
+  letter-spacing: 1px;
+}
+
 .login-loading {
   padding: 48px 0;
   display: flex;

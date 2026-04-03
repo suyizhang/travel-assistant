@@ -3,10 +3,39 @@ import { config } from "./config.ts";
 import { authenticate, wxCode2Session, githubOAuth, generateToken } from "./auth.ts";
 import { checkRateLimit, getClientIP, parseBody, getCorsHeaders, sendJSON } from "./middleware.ts";
 import { Assistant } from "./agent.ts";
-import { streamChat } from "./stream.ts";
+import { streamChat, clearStreamSession } from "./stream.ts";
 import { getAttractionReviews, addUserReview, markReviewHelpful, getAllReviews, getUserReviewStats } from "./tools/data/reviews-data.js";
 
 const assistant = new Assistant();
+
+// ===================== 游客每日限制 =====================
+const GUEST_DAILY_LIMIT = 5;
+const guestUsageMap = new Map<string, { count: number; date: string }>();
+
+function checkGuestLimit(guestId: string): { allowed: boolean; remaining: number } {
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  let record = guestUsageMap.get(guestId);
+
+  if (!record || record.date !== today) {
+    record = { count: 0, date: today };
+    guestUsageMap.set(guestId, record);
+  }
+
+  if (record.count >= GUEST_DAILY_LIMIT) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  record.count++;
+  return { allowed: true, remaining: GUEST_DAILY_LIMIT - record.count };
+}
+
+// 每小时清理过期的游客记录
+setInterval(() => {
+  const today = new Date().toISOString().slice(0, 10);
+  for (const [id, record] of guestUsageMap) {
+    if (record.date !== today) guestUsageMap.delete(id);
+  }
+}, 60 * 60 * 1000);
 
 export async function handleRequest(
   req: http.IncomingMessage,
@@ -117,6 +146,8 @@ export async function handleRequest(
     return;
   }
 
+  const isGuest = userId.startsWith("guest:");
+
   // 用户级频率限制
   if (userId !== "dev" && userId !== "apikey") {
     if (!checkRateLimit(`user:${userId}`)) {
@@ -127,6 +158,18 @@ export async function handleRequest(
 
   // POST /api/chat
   if (method === "POST" && url === "/api/chat") {
+    // 游客每日限制
+    if (isGuest) {
+      const { allowed } = checkGuestLimit(userId);
+      if (!allowed) {
+        sendJSON(res, 403, {
+          error: `游客每日免费体验 ${GUEST_DAILY_LIMIT} 次已用完，登录后可无限使用`,
+          guest_limit: true,
+        }, corsHeaders);
+        return;
+      }
+    }
+
     try {
       const { message, session_id, location } = await parseBody(req);
 
@@ -151,8 +194,20 @@ export async function handleRequest(
 
   // POST /api/chat/stream
   if (method === "POST" && url === "/api/chat/stream") {
+    // 游客每日限制
+    if (isGuest) {
+      const { allowed } = checkGuestLimit(userId);
+      if (!allowed) {
+        sendJSON(res, 403, {
+          error: `游客每日免费体验 ${GUEST_DAILY_LIMIT} 次已用完，登录后可无限使用`,
+          guest_limit: true,
+        }, corsHeaders);
+        return;
+      }
+    }
+
     try {
-      const { message, session_id } = await parseBody(req);
+      const { message, session_id, location } = await parseBody(req);
 
       if (!message || typeof message !== "string") {
         sendJSON(res, 400, { error: "缺少 message 参数" }, corsHeaders);
@@ -164,7 +219,7 @@ export async function handleRequest(
       }
 
       const sessionId = session_id || userId;
-      await streamChat(res, message, [], corsHeaders);
+      await streamChat(res, message, sessionId, corsHeaders, location || undefined);
     } catch (err) {
       console.error("Stream error:", err);
       if (!res.headersSent) {
@@ -178,7 +233,9 @@ export async function handleRequest(
   if (method === "POST" && url === "/api/clear") {
     try {
       const { session_id } = await parseBody(req);
-      assistant.clearHistory(session_id || userId);
+      const sid = session_id || userId;
+      assistant.clearHistory(sid);
+      clearStreamSession(sid);
       sendJSON(res, 200, { message: "会话已清除" }, corsHeaders);
     } catch (err) {
       sendJSON(res, 500, { error: "操作失败" }, corsHeaders);

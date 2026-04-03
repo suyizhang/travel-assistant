@@ -40,6 +40,11 @@ export default function Login() {
     }
   }
 
+  function handleGuestLogin() {
+    Taro.setStorageSync('guest_mode', 'true')
+    Taro.reLaunch({ url: '/pages/index/index' })
+  }
+
   function handleGithubLogin() {
     if (process.env.TARO_ENV !== 'h5') return
 
@@ -83,6 +88,11 @@ export default function Login() {
               <Text className='login-github-text'>GitHub 登录</Text>
             </View>
 
+            <View className='login-guest-btn' onClick={handleGuestLogin}>
+              <Text className='login-guest-icon'>🌍</Text>
+              <Text className='login-guest-text'>游客体验</Text>
+            </View>
+
             {status === 'error' && (
               <View className='login-error'>
                 <Text>{errorMsg}</Text>
@@ -90,7 +100,7 @@ export default function Login() {
             )}
 
             <View className='login-tip'>
-              <Text>使用 GitHub 账号即可快速登录</Text>
+              <Text>游客每日可免费体验 5 次对话，登录后无限使用</Text>
             </View>
           </>
         )}

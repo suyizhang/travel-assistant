@@ -3,7 +3,8 @@ export default defineAppConfig({
   pages: [
     'pages/index/index',
     'pages/chat/index',
-    'pages/login/index'
+    'pages/login/index',
+    'pages/review/index'
   ],
   window: {
     backgroundTextStyle: 'light',

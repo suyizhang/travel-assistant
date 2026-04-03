@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import type http from "node:http";
 import { config } from "./config.ts";
+import { getClientIP } from "./middleware.ts";
 
 // token 存储：token -> { openid, expiresAt }
 const tokenStore = new Map<string, { openid: string; expiresAt: number }>();
@@ -132,8 +133,8 @@ export function verifyToken(token: string): string | null {
 }
 
 /**
- * 鉴权：优先 token（微信登录），兼容 API Key（调试用）
- * 返回 userId (openid / "apikey" / "dev") 或 null（未授权）
+ * 鉴权：优先 token（微信登录），兼容 API Key（调试用），支持游客模式
+ * 返回 userId (openid / "apikey" / "dev" / "guest:xxx") 或 null（未授权）
  */
 export function authenticate(req: http.IncomingMessage): string | null {
   const authHeader = req.headers["authorization"] || "";
@@ -155,5 +156,7 @@ export function authenticate(req: http.IncomingMessage): string | null {
   // 未配置任何鉴权时，开发模式放行
   if (!apiKey && !appid) return "dev";
 
-  return null;
+  // 游客模式：无 token 时根据 IP 生成 guest id
+  const guestIP = getClientIP(req);
+  return `guest:${guestIP}`;
 }

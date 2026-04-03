@@ -6,7 +6,7 @@ export default {
     devServer: {
       proxy: {
         '/api': {
-          target: 'https://suyi.fun',
+          target: 'http://localhost:712',
           changeOrigin: true,
         }
       }
